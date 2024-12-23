@@ -1,6 +1,6 @@
 {
 	"name": "mongo-anywhere",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "",
 	"author": "Decatur Robotics",
 	"license": "MIT",
@@ -15,6 +15,16 @@
 		"type": "git",
 		"url": "git+https://github.com/Decatur-Robotics/mongo-anywhere.git"
 	},
+	"keywords": [
+		"mongo",
+		"mongodb",
+		"minimongo",
+		"database",
+		"testing",
+		"mocking",
+		"mock",
+		"in memory"
+	],
 	"files": [
 		"src/**/*"
 	],
