@@ -1,9 +1,9 @@
 {
 	"name": "mongo-anywhere",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "",
 	"author": "Decatur Robotics",
-	"license": "CC0 1.0",
+	"license": "MIT",
 	"scripts": {
 		"validate": "tsc --noEmit",
 		"test": "jest --passWithNoTests",
