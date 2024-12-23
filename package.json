@@ -1,11 +1,11 @@
 {
 	"name": "mongo-anywhere",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "",
 	"author": "Decatur Robotics",
 	"license": "MIT",
 	"scripts": {
-		"validate": "tsc --noEmit",
+		"build": "tsc & tsc --declaration",
 		"test": "jest --passWithNoTests",
 		"lint": "eslint . --max-warnings=0",
 		"prettier-fix": "prettier --write ./**/*.{js,tsx,jsx,json,ts}",
