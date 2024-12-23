@@ -22,10 +22,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check package name
-        run: npm pkg get name >> $GITHUB_OUTPUT
-        id: check_pkg_name
-
       - name: Publish package
         run: npm publish --access public
         env:
