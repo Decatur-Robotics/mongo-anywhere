@@ -1,6 +1,6 @@
 {
 	"name": "mongo-anywhere",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "",
 	"author": "Decatur Robotics",
 	"license": "MIT",
@@ -26,7 +26,7 @@
 		"in memory"
 	],
 	"files": [
-		"src/**/*"
+		"dist/**/*"
 	],
 	"devDependencies": {
 		"@types/jest": "^29.5.14",
