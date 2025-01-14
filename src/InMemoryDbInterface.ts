@@ -85,12 +85,16 @@ function deserialize(obj: any): any {
 export default class InMemoryDbInterface<
 	TCollectionId extends string,
 	TDocument extends WithStringOrObjectIdId<Document>,
-> extends DbInterface<TCollectionId, TDocument> {
+> implements DbInterface<TCollectionId, TDocument>
+{
 	backingDb: MemoryDb;
 
 	constructor() {
-		super();
 		this.backingDb = new MemoryDb();
+	}
+
+	init(): Promise<void> {
+		return Promise.resolve();
 	}
 
 	protected getCollection(collection: TCollectionId) {
