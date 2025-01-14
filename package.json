@@ -36,7 +36,9 @@
 		}
 	},
 	"exports": {
-		"./": "./dist/"
+		"./DbInterface": "./dist/DbInterface.js",
+		"./MongoDbInterface": "./dist/MongoDbInterface.js",
+		"./InMemoryDbInterface": "./dist/InMemoryDbInterface.js"
 	},
 	"devDependencies": {
 		"@types/jest": "^29.5.14",
