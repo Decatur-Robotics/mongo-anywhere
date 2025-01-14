@@ -14,25 +14,19 @@ export default class MongoDbInterface<
 		this.promise = promise;
 	}
 
-	async init() {
+	async init(collectionIds: TCollectionId[]) {
 		this.client = await this.promise;
 		this.db = this.client?.db(process.env.DB);
-		//@ts-ignore
 
-		const CollectionId = (await this.db
-			?.listCollections()
-			.toArray()) as TCollectionId;
-		if (CollectionId?.length === 0) {
-			try {
-				Object.values(CollectionId).forEach(
-					async (collectionName) =>
-						await this.db?.createCollection(collectionName),
-				);
-			} catch (e) {
-				console.log(
-					"Failed to create CollectionId... (probably exist already)",
-				);
-			}
+		try {
+			collectionIds.forEach(
+				async (collectionName) =>
+					await this.db?.createCollection(collectionName),
+			);
+		} catch (e) {
+			console.error(
+				"Failed to create CollectionId... (probably exist already)",
+			);
 		}
 	}
 

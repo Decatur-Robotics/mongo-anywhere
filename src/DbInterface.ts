@@ -8,7 +8,7 @@ export default interface DbInterface<
 	TCollectionId extends string,
 	TDocument extends WithStringOrObjectIdId<Document>,
 > {
-	init(): Promise<void>;
+	init(collectionIds: TCollectionId[]): Promise<void>;
 
 	addObject<TId extends TCollectionId, TObj extends TDocument>(
 		collection: TId,

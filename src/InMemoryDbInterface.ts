@@ -93,8 +93,29 @@ export default class InMemoryDbInterface<
 		this.backingDb = new MemoryDb();
 	}
 
-	init(): Promise<void> {
-		return Promise.resolve();
+	init(collectionIds: string[]): Promise<void> {
+		const promise = new Promise((resolve) => {
+			let collectionsCreated = 0;
+
+			function onCollectionCreated() {
+				collectionsCreated++;
+				if (collectionsCreated === collectionIds.length) {
+					resolve(undefined);
+				}
+			}
+
+			// Have to use Object.values here or else we'll get the keys as strings
+			// Be sure to use of, not in!
+			for (const collectionId of collectionIds) {
+				this.backingDb.addCollection(
+					collectionId,
+					onCollectionCreated,
+					onCollectionCreated,
+				);
+			}
+		});
+
+		return promise as Promise<void>;
 	}
 
 	protected getCollection(collection: TCollectionId) {
