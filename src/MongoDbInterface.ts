@@ -4,7 +4,8 @@ import DbInterface, { WithStringOrObjectIdId } from "./DbInterface";
 export default class MongoDbInterface<
 	TCollectionId extends string,
 	TDocument extends WithStringOrObjectIdId<Document>,
-> implements DbInterface<TCollectionId, TDocument> {
+> implements DbInterface<TCollectionId, TDocument>
+{
 	promise: Promise<MongoClient> | undefined;
 	client: MongoClient | undefined;
 	db: Db | undefined;

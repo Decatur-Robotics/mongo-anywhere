@@ -15,10 +15,7 @@ export default interface DbInterface<
 		object: WithStringOrObjectIdId<TObj>,
 	): Promise<TObj>;
 
-	deleteObjectById(
-		collection: TCollectionId,
-		id: ObjectId,
-	): Promise<void>;
+	deleteObjectById(collection: TCollectionId, id: ObjectId): Promise<void>;
 
 	updateObjectById<TId extends TCollectionId, TObj extends TDocument>(
 		collection: TId,
