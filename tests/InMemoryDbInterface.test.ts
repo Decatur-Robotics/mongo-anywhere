@@ -23,6 +23,14 @@ async function getDb() {
 	return db;
 }
 
+test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.init.name}: Initializes collections`, async () => {
+	const db = new InMemoryDbInterface();
+	await db.init(Object.values(CollectionId));
+	expect(Object.keys(db.backingDb.collections)).toStrictEqual(
+		Object.values(CollectionId),
+	);
+});
+
 test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.addObject.name}: Adds object`, async () => {
 	const { db, user } = await getTestApiUtils();
 	await db.addObject(CollectionId.Users, user);
