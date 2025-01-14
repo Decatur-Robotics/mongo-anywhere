@@ -19,7 +19,7 @@ async function getTestApiUtils() {
 
 async function getDb() {
 	const db = new InMemoryDbInterface();
-	await db.init();
+	await db.init(Object.values(CollectionId));
 	return db;
 }
 
