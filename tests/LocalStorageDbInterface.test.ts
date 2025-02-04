@@ -1,9 +1,9 @@
 import { ObjectId } from "bson";
-import LocalStorageDbInterface from '../src/LocalStorageDbInterface';
-import LocalStorageMock from '../src/LocalStorageMock';
+import LocalStorageDbInterface from "../src/LocalStorageDbInterface";
+import LocalStorageMock from "../src/LocalStorageMock";
 
 global.window = {
-	localStorage: new LocalStorageMock()
+	localStorage: new LocalStorageMock(),
 } as any;
 
 enum CollectionId {
