@@ -1,6 +1,6 @@
-import { deserialize, serialize } from './utils';
+import { deserialize, serialize } from "./utils";
 export default class {
-  private store: { [key: string]: string };
+	private store: { [key: string]: string };
 
 	constructor() {
 		this.store = {};
@@ -19,7 +19,6 @@ export default class {
 	}
 
 	setItem(key: string, value: object) {
-		
 		this.store[key] = JSON.stringify(serialize(value));
 	}
 

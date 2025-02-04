@@ -74,5 +74,5 @@ export function serialize(obj: any, removeUndefined: boolean = true): any {
 }
 
 export function deserialize(obj: any): any {
-  return replaceOidOperator(EJSON.deserialize(obj), false);
+	return replaceOidOperator(EJSON.deserialize(obj), false);
 }
