@@ -1,20 +1,20 @@
 import { Document, ObjectId } from "bson";
 import DbInterface, { WithStringOrObjectIdId } from "./DbInterface";
-import { MemoryDb } from "minimongo";
+import { LocalStorageDb } from "minimongo";
 import { deserialize, serialize } from "./utils";
 
 /**
- * @tested_by tests/InMemoryDbInterface.test.ts
+ * @tested_by tests/LocalStorageDbInterface.test.ts
  */
-export default class InMemoryDbInterface<
+export default class LocalStorageDbInterface<
 	TCollectionId extends string,
 	TDocument extends WithStringOrObjectIdId<Document>,
 > implements DbInterface<TCollectionId, TDocument>
 {
-	backingDb: MemoryDb;
+	backingDb: LocalStorageDb;
 
 	constructor() {
-		this.backingDb = new MemoryDb();
+		this.backingDb = new LocalStorageDb(undefined, undefined, console.error);
 	}
 
 	init(collectionIds: string[]): Promise<void> {
@@ -44,7 +44,7 @@ export default class InMemoryDbInterface<
 
 	protected getCollection(collection: TCollectionId) {
 		if (!this.backingDb.collections[collection]) {
-			this.backingDb.addCollection(collection);
+			this.backingDb.addCollection(collection, undefined, console.error);
 		}
 
 		return this.backingDb.collections[collection];
@@ -116,7 +116,7 @@ export default class InMemoryDbInterface<
 		return this.getCollection(collection)
 			.find(serialize(query, false))
 			.fetch()
-			.then((res: { [index: string]: object }) => {
+			.then((res: any) => {
 				return Object.values(res).map(deserialize);
 			});
 	}
