@@ -1,5 +1,8 @@
 import { deserialize, serialize } from "./utils";
-export default class {
+
+class LocalStorageMock {
+	[key: string | symbol]: any;
+
 	private store: { [key: string]: string };
 
 	constructor() {
@@ -25,4 +28,26 @@ export default class {
 	removeItem(key: string) {
 		delete this.store[key];
 	}
+
+	key(index: number) {
+		return Object.keys(this.store)[index];
+	}
+
+	get length() {
+		return Object.keys(this.store ?? {}).length;
+	}
+
+	/**
+	 * Custom indexer
+	 */
+	private static indexHandler: ProxyHandler<LocalStorageMock> = {
+		get(target, prop) {
+			if (typeof prop === "string" && !isNaN(Number(prop))) {
+				return target.getItem(prop);
+			}
+			return target[prop];
+		},
+	};
 }
+
+export default LocalStorageMock;
