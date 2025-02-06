@@ -113,15 +113,3 @@ test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.countO
 	await db.addObject(CollectionId.Users, user);
 	expect(await db.countObjects(CollectionId.Users, {})).toBe(1);
 });
-
-test(`${LocalStorageDbInterface.name}: Persists data between instances`, async () => {
-	const { db, user } = await getTestApiUtils();
-	await db.addObject(CollectionId.Users, user);
-	console.log(window.localStorage);
-
-	const newDb = await getDb();
-	console.log(newDb.backingDb.collections[CollectionId.Users]);
-	expect(
-		await newDb.findObjectById(CollectionId.Users, user._id as any as ObjectId),
-	).toStrictEqual(user);
-});

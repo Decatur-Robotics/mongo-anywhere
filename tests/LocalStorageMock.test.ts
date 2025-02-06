@@ -44,16 +44,6 @@ test(`${LocalStorageMock.name}.${LocalStorageMock.prototype.key}: Returns key at
 	expect(localStorage.key(1)).toBe("key2");
 });
 
-test(`${LocalStorageMock.name}[key]`, () => {
-	const key = "123";
-	const value = { test: "value" };
-
-	const localStorage = new LocalStorageMock();
-	localStorage.setItem(key, value);
-
-	expect(localStorage[key]).toStrictEqual(value);
-});
-
 test(`${LocalStorageMock.name}.${LocalStorageMock.prototype.length}: Returns number of items`, () => {
 	const localStorage = new LocalStorageMock();
 

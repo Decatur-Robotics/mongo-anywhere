@@ -36,18 +36,6 @@ class LocalStorageMock {
 	get length() {
 		return Object.keys(this.store ?? {}).length;
 	}
-
-	/**
-	 * Custom indexer
-	 */
-	private static indexHandler: ProxyHandler<LocalStorageMock> = {
-		get(target, prop) {
-			if (typeof prop === "string" && !isNaN(Number(prop))) {
-				return target.getItem(prop);
-			}
-			return target[prop];
-		},
-	};
 }
 
 export default LocalStorageMock;
