@@ -1,5 +1,8 @@
 import { deserialize, serialize } from "./utils";
 
+/**
+ * Does not actually persist data!
+ */
 class LocalStorageMock {
 	[key: string | symbol]: any;
 
