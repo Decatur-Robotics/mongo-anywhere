@@ -1,6 +1,6 @@
 import { Document, ObjectId } from "bson";
 import DbInterface, { WithStringOrObjectIdId } from "./DbInterface";
-import { LocalStorageDb } from "minimongo";
+import { LocalStorageDb, MinimongoLocalCollection } from "minimongo";
 import { deserialize, serialize } from "./utils";
 
 /**
@@ -14,7 +14,11 @@ export default class LocalStorageDbInterface<
 	backingDb: LocalStorageDb;
 
 	constructor() {
-		this.backingDb = new LocalStorageDb(undefined, undefined, console.error);
+		this.backingDb = new LocalStorageDb(
+			{ namespace: "localstoragedb" },
+			undefined,
+			console.error,
+		);
 	}
 
 	init(collectionIds: string[]): Promise<void> {
@@ -34,7 +38,9 @@ export default class LocalStorageDbInterface<
 				this.backingDb.addCollection(
 					collectionId,
 					onCollectionCreated,
-					onCollectionCreated,
+					(e: any) => {
+						throw new Error(e);
+					},
 				);
 			}
 		});
@@ -42,9 +48,25 @@ export default class LocalStorageDbInterface<
 		return promise as Promise<void>;
 	}
 
+	private cacheObj(
+		collectionId: TCollectionId,
+		obj: WithStringOrObjectIdId<TDocument>,
+		then: () => void,
+	) {
+		return Promise.resolve(
+			(
+				this.backingDb.collections[collectionId] as MinimongoLocalCollection
+			).cacheOne(obj, then, (e: any) => {
+				throw new Error(e);
+			}),
+		);
+	}
+
 	protected getCollection(collection: TCollectionId) {
 		if (!this.backingDb.collections[collection]) {
-			this.backingDb.addCollection(collection, undefined, console.error);
+			this.backingDb.addCollection(collection, undefined, (e: any) => {
+				throw new Error(e);
+			});
 		}
 
 		return this.backingDb.collections[collection];
@@ -56,9 +78,11 @@ export default class LocalStorageDbInterface<
 	): Promise<TObj> {
 		if (!object._id) object._id = new ObjectId();
 
-		return this.getCollection(collection)
-			.upsert(serialize(object))
-			.then(deserialize);
+		return this.cacheObj(collection, object, () => {
+			return this.getCollection(collection)
+				.upsert(serialize(object))
+				.then(deserialize);
+		}).then(() => object as TObj);
 	}
 
 	deleteObjectById(collection: TCollectionId, id: ObjectId): Promise<void> {
