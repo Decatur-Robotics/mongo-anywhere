@@ -76,3 +76,11 @@ export function serialize(obj: any, removeUndefined: boolean = true): any {
 export function deserialize(obj: any): any {
 	return replaceOidOperator(EJSON.deserialize(obj), false);
 }
+
+export function ensureObjHasId(obj: { _id?: ObjectId | string }): void {
+	if (obj._id && typeof obj._id === "string") {
+		obj._id = new ObjectId(obj._id);
+	} else if (!obj._id) {
+		obj._id = new ObjectId();
+	}
+}

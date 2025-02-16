@@ -1,7 +1,7 @@
 import { Document, ObjectId } from "bson";
 import DbInterface, { WithStringOrObjectIdId } from "./DbInterface";
 import { MemoryDb } from "minimongo";
-import { deserialize, serialize } from "./utils";
+import { deserialize, ensureObjHasId, serialize } from "./utils";
 
 /**
  * @tested_by tests/InMemoryDbInterface.test.ts
@@ -54,7 +54,7 @@ export default class InMemoryDbInterface<
 		collection: TId,
 		object: WithStringOrObjectIdId<TObj>,
 	): Promise<TObj> {
-		if (!object._id) object._id = new ObjectId();
+		ensureObjHasId(object);
 
 		return this.getCollection(collection)
 			.upsert(serialize(object))
