@@ -1,7 +1,7 @@
 import { Document, ObjectId } from "bson";
 import DbInterface, { WithStringOrObjectIdId } from "./DbInterface";
 import { LocalStorageDb, MinimongoLocalCollection } from "minimongo";
-import { deserialize, serialize } from "./utils";
+import { deserialize, ensureObjHasId, serialize } from "./utils";
 
 /**
  * @tested_by tests/LocalStorageDbInterface.test.ts
@@ -76,7 +76,7 @@ export default class LocalStorageDbInterface<
 		collection: TId,
 		object: WithStringOrObjectIdId<TObj>,
 	): Promise<TObj> {
-		if (!object._id) object._id = new ObjectId();
+		ensureObjHasId(object);
 
 		return this.cacheObj(collection, object, () => {
 			return this.getCollection(collection)

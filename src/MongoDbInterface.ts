@@ -1,5 +1,6 @@
 import { MongoClient, Db, ObjectId } from "mongodb";
 import DbInterface, { WithStringOrObjectIdId } from "./DbInterface";
+import { ensureObjHasId } from "./utils";
 
 export default class MongoDbInterface<
 	TCollectionId extends string,
@@ -24,9 +25,7 @@ export default class MongoDbInterface<
 					await this.db?.createCollection(collectionName),
 			);
 		} catch (e) {
-			console.error(
-				"Failed to create CollectionId... (probably exist already)",
-			);
+			console.error(e);
 		}
 	}
 
@@ -34,8 +33,7 @@ export default class MongoDbInterface<
 		collection: TId,
 		object: WithStringOrObjectIdId<TObj>,
 	): Promise<TObj> {
-		if (object._id && typeof object._id === "string")
-			object._id = new ObjectId(object._id);
+		ensureObjHasId(object);
 
 		const ack = await this?.db
 			?.collection(collection)
