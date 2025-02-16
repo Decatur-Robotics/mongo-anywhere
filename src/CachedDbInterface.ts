@@ -40,6 +40,13 @@ export default class CachedDbInterface<
 		return Promise.resolve();
 	}
 
+	/**
+	 * Override to make TTLs vary by collection
+	 */
+	getTtl(collection: TCollectionId): number {
+		return this.cacheOptions.stdTTL ?? 0;
+	}
+
 	addObject<TId extends TCollectionId, TObj extends TDocument>(
 		collection: TId,
 		object: WithStringOrObjectIdId<TObj>,
@@ -75,6 +82,7 @@ export default class CachedDbInterface<
 			global.cache!.set(
 				getCacheKey("findOne", collection, id.toString()),
 				updated,
+				this.getTtl(collection),
 			);
 		}
 
@@ -98,6 +106,7 @@ export default class CachedDbInterface<
 			global.cache!.set(
 				getCacheKey("findOne", collection, id.toString()),
 				fallback,
+				this.getTtl(collection),
 			);
 		}
 
@@ -116,7 +125,11 @@ export default class CachedDbInterface<
 
 		const fallback = await this.fallbackDb.findObject(collection, query);
 		if (fallback) {
-			global.cache!.set(getCacheKey("findOne", collection, query), fallback);
+			global.cache!.set(
+				getCacheKey("findOne", collection, query),
+				fallback,
+				this.getTtl(collection),
+			);
 		}
 
 		return fallback as Type;
@@ -144,12 +157,14 @@ export default class CachedDbInterface<
 			global.cache!.set(
 				getCacheKey("findMultiple", collection, query),
 				fallback.map((obj) => obj._id!),
+				this.getTtl(collection),
 			);
 
 			fallback.forEach((obj) => {
 				global.cache!.set(
 					getCacheKey("findOne", collection, obj._id!.toString()),
 					obj,
+					this.getTtl(collection),
 				);
 			});
 		}
@@ -169,7 +184,11 @@ export default class CachedDbInterface<
 
 		const fallback = await this.fallbackDb.countObjects(collection, query);
 		if (fallback) {
-			global.cache!.set(getCacheKey("count", collection, query), fallback);
+			global.cache!.set(
+				getCacheKey("count", collection, query),
+				fallback,
+				this.getTtl(collection),
+			);
 		}
 
 		return fallback;
