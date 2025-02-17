@@ -7,8 +7,10 @@ declare global {
 	var cache: NodeCache | undefined;
 }
 
+export type CacheOperation = "findOne" | "findMultiple" | "count";
+
 export function getCacheKey(
-	operation: "findOne" | "findMultiple" | "count",
+	operation: CacheOperation,
 	collection: string,
 	query: object | string,
 ): string {
@@ -44,7 +46,7 @@ export default class CachedDbInterface<
 	/**
 	 * Override to make TTLs vary by collection
 	 */
-	getTtl(collection: TCollectionId): number {
+	getTtl(operation: CacheOperation, collection: TCollectionId): number {
 		return this.cacheOptions.stdTTL ?? 0;
 	}
 
@@ -83,7 +85,7 @@ export default class CachedDbInterface<
 		this.setInCache(
 			getCacheKey("findOne", collection, object._id!.toString()),
 			object,
-			this.getTtl(collection),
+			this.getTtl("findOne", collection),
 		);
 
 		return this.fallbackDb.addObject(collection, object);
@@ -110,7 +112,7 @@ export default class CachedDbInterface<
 			this.setInCache(
 				getCacheKey("findOne", collection, id.toString()),
 				updated,
-				this.getTtl(collection),
+				this.getTtl("findOne", collection),
 			);
 		}
 
@@ -134,7 +136,7 @@ export default class CachedDbInterface<
 			this.setInCache(
 				getCacheKey("findOne", collection, id.toString()),
 				fallback,
-				this.getTtl(collection),
+				this.getTtl("findOne", collection),
 			);
 		}
 
@@ -156,7 +158,7 @@ export default class CachedDbInterface<
 			this.setInCache(
 				getCacheKey("findOne", collection, query),
 				fallback,
-				this.getTtl(collection),
+				this.getTtl("findOne", collection),
 			);
 		}
 
@@ -185,14 +187,14 @@ export default class CachedDbInterface<
 			this.setInCache(
 				getCacheKey("findMultiple", collection, query),
 				fallback.map((obj) => obj._id!),
-				this.getTtl(collection),
+				this.getTtl("findMultiple", collection),
 			);
 
 			fallback.forEach((obj) => {
 				this.setInCache(
 					getCacheKey("findOne", collection, obj._id!.toString()),
 					obj,
-					this.getTtl(collection),
+					this.getTtl("findOne", collection),
 				);
 			});
 		}
@@ -215,7 +217,7 @@ export default class CachedDbInterface<
 			this.setInCache(
 				getCacheKey("count", collection, query),
 				fallback,
-				this.getTtl(collection),
+				this.getTtl("count", collection),
 			);
 		}
 
