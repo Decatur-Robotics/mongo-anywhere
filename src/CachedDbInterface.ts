@@ -52,7 +52,7 @@ export default class CachedDbInterface<
 		const cached = global.cache!.get(key);
 
 		if (this.logCacheInteractions) {
-			console.log(`Cache ${cached ? "hit" : "miss"} for key: ${key}`);
+			console.log(`Cache ${cached ? "HIT" : "MISS"} for key: ${key}`);
 		}
 
 		return cached;
