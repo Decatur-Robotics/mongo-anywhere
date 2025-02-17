@@ -28,6 +28,7 @@ export default class CachedDbInterface<
 	constructor(
 		private fallbackDb: DbInterface<TCollectionId, TDocument>,
 		private cacheOptions: NodeCache.Options,
+		private logCacheInteractions = false,
 	) {}
 
 	init(collectionIds: TCollectionId[]): Promise<void> {
@@ -47,22 +48,49 @@ export default class CachedDbInterface<
 		return this.cacheOptions.stdTTL ?? 0;
 	}
 
+	private getFromCache(key: string) {
+		const cached = global.cache!.get(key);
+
+		if (this.logCacheInteractions) {
+			console.log(`Cache ${cached ? "hit" : "miss"} for key: ${key}`);
+		}
+
+		return cached;
+	}
+
+	private setInCache(key: string, value: any, ttl: number) {
+		global.cache!.set(key, value, ttl);
+
+		if (this.logCacheInteractions) {
+			console.log(`Set cache for key: ${key}`);
+		}
+	}
+
+	private deleteFromCache(key: string) {
+		global.cache!.del(key);
+
+		if (this.logCacheInteractions) {
+			console.log(`Deleted cache for key: ${key}`);
+		}
+	}
+
 	addObject<TId extends TCollectionId, TObj extends TDocument>(
 		collection: TId,
 		object: WithStringOrObjectIdId<TObj>,
 	): Promise<TObj> {
 		ensureObjHasId(object);
 
-		global.cache!.set(
+		this.setInCache(
 			getCacheKey("findOne", collection, object._id!.toString()),
 			object,
+			this.getTtl(collection),
 		);
 
 		return this.fallbackDb.addObject(collection, object);
 	}
 
 	deleteObjectById(collection: TCollectionId, id: ObjectId): Promise<void> {
-		global.cache!.del(getCacheKey("findOne", collection, id.toString()));
+		this.deleteFromCache(getCacheKey("findOne", collection, id.toString()));
 
 		return this.fallbackDb.deleteObjectById(collection, id);
 	}
@@ -79,7 +107,7 @@ export default class CachedDbInterface<
 		if (cached) {
 			const updated = { ...cached, ...newValues };
 
-			global.cache!.set(
+			this.setInCache(
 				getCacheKey("findOne", collection, id.toString()),
 				updated,
 				this.getTtl(collection),
@@ -93,7 +121,7 @@ export default class CachedDbInterface<
 		collection: TCollectionId,
 		id: ObjectId,
 	): Promise<Type | undefined> {
-		const cached = global.cache!.get(
+		const cached = this.getFromCache(
 			getCacheKey("findOne", collection, id.toString()),
 		);
 
@@ -103,7 +131,7 @@ export default class CachedDbInterface<
 
 		const fallback = await this.fallbackDb.findObjectById(collection, id);
 		if (fallback) {
-			global.cache!.set(
+			this.setInCache(
 				getCacheKey("findOne", collection, id.toString()),
 				fallback,
 				this.getTtl(collection),
@@ -117,7 +145,7 @@ export default class CachedDbInterface<
 		collection: TCollectionId,
 		query: object,
 	): Promise<Type | undefined> {
-		const cached = global.cache!.get(getCacheKey("findOne", collection, query));
+		const cached = this.getFromCache(getCacheKey("findOne", collection, query));
 
 		if (cached) {
 			return Promise.resolve(cached as Type);
@@ -125,7 +153,7 @@ export default class CachedDbInterface<
 
 		const fallback = await this.fallbackDb.findObject(collection, query);
 		if (fallback) {
-			global.cache!.set(
+			this.setInCache(
 				getCacheKey("findOne", collection, query),
 				fallback,
 				this.getTtl(collection),
@@ -139,7 +167,7 @@ export default class CachedDbInterface<
 		collection: TCollectionId,
 		query: object,
 	): Promise<Type[]> {
-		const cachedIds = global.cache!.get(
+		const cachedIds = this.getFromCache(
 			getCacheKey("findMultiple", collection, query),
 		) as ObjectId[];
 
@@ -154,14 +182,14 @@ export default class CachedDbInterface<
 		const fallback = await this.fallbackDb.findObjects(collection, query);
 
 		if (fallback) {
-			global.cache!.set(
+			this.setInCache(
 				getCacheKey("findMultiple", collection, query),
 				fallback.map((obj) => obj._id!),
 				this.getTtl(collection),
 			);
 
 			fallback.forEach((obj) => {
-				global.cache!.set(
+				this.setInCache(
 					getCacheKey("findOne", collection, obj._id!.toString()),
 					obj,
 					this.getTtl(collection),
@@ -176,7 +204,7 @@ export default class CachedDbInterface<
 		collection: TCollectionId,
 		query: object,
 	): Promise<number | undefined> {
-		const cached = global.cache!.get(getCacheKey("count", collection, query));
+		const cached = this.getFromCache(getCacheKey("count", collection, query));
 
 		if (cached) {
 			return Promise.resolve(cached as number);
@@ -184,7 +212,7 @@ export default class CachedDbInterface<
 
 		const fallback = await this.fallbackDb.countObjects(collection, query);
 		if (fallback) {
-			global.cache!.set(
+			this.setInCache(
 				getCacheKey("count", collection, query),
 				fallback,
 				this.getTtl(collection),
