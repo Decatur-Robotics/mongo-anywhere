@@ -46,7 +46,7 @@ export default class CachedDbInterface<
 	/**
 	 * Override to make TTLs vary by collection
 	 */
-	getTtl(operation: CacheOperation, collection: TCollectionId): number {
+	protected getTtl(operation: CacheOperation, collection: TCollectionId): number {
 		return this.cacheOptions.stdTTL ?? 0;
 	}
 
