@@ -51,14 +51,17 @@ export default class LocalStorageDbInterface<
 	private cacheObj(
 		collectionId: TCollectionId,
 		obj: WithStringOrObjectIdId<TDocument>,
-		then: () => void,
 	) {
 		return Promise.resolve(
 			(
 				this.backingDb.collections[collectionId] as MinimongoLocalCollection
-			).cacheOne(obj, then, (e: any) => {
-				throw new Error(e);
-			}),
+			).cacheOne(
+				obj,
+				() => {},
+				(e: any) => {
+					throw new Error(e);
+				},
+			),
 		);
 	}
 
@@ -78,11 +81,11 @@ export default class LocalStorageDbInterface<
 	): Promise<TObj> {
 		ensureObjHasId(object);
 
-		return this.cacheObj(collection, object, () => {
-			return this.getCollection(collection)
-				.upsert(serialize(object))
-				.then(deserialize);
-		}).then(() => object as TObj);
+		this.cacheObj(collection, serialize(object));
+
+		return this.getCollection(collection)
+			.upsert(serialize(object))
+			.then(deserialize);
 	}
 
 	deleteObjectById(collection: TCollectionId, id: ObjectId): Promise<void> {
@@ -103,9 +106,10 @@ export default class LocalStorageDbInterface<
 					);
 				}
 
-				const returnValue = this.getCollection(collection).upsert(
-					serialize({ ...existingDoc, ...newValues, _id: id }),
-				);
+				const newObj = serialize({ ...existingDoc, ...newValues, _id: id });
+
+				this.cacheObj(collection, newObj);
+				const returnValue = this.getCollection(collection).upsert(newObj);
 				return deserialize(returnValue);
 			});
 	}
