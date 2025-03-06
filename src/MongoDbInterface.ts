@@ -52,8 +52,10 @@ export default class MongoDbInterface<
 		id: ObjectId,
 		newValues: Partial<TObj>,
 	): Promise<void> {
-		var query = { _id: id };
-		var updated = { $set: newValues };
+		const { _id, ...update } = newValues;
+
+		const query = { _id: id };
+		const updated = { $set: update };
 		this?.db?.collection(collection).updateOne(query, updated);
 
 		return Promise.resolve();
