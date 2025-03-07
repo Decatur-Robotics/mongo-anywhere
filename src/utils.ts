@@ -13,22 +13,55 @@ export function removeUndefinedValues(obj: { [key: string]: any }): {
 			delete newObj[key];
 		} else if (Array.isArray(newObj[key])) {
 			newObj[key] = newObj[key].map((item: any) => {
-				if (typeof item === "object") {
+				if (typeof item === "object" && !(item instanceof ObjectId)) {
 					return removeUndefinedValues(item);
 				}
 				return item;
 			});
 		} else if (
 			newObj[key] !== undefined &&
-			!(newObj[key] instanceof ObjectId) &&
 			newObj[key] !== null &&
-			typeof newObj[key] === "object"
+			typeof newObj[key] === "object" &&
+			!(newObj[key] instanceof ObjectId)
 		) {
 			newObj[key] = removeUndefinedValues(newObj[key]);
 		}
 	}
 
 	return newObj;
+}
+
+export function encodeSerializedObjectId(id: { $oid: string }): string {
+	return `oid:${id.$oid.toString()}`;
+}
+
+export function decodeObjectId(id: string) {
+	return new ObjectId(id.slice("oid:".length));
+}
+
+export function isSerializedObjectId(obj: any) {
+	return (
+		obj && typeof obj === "object" && obj.$oid && ObjectId.isValid(obj.$oid)
+	);
+}
+
+export function isEncodedObjectId(obj: string) {
+	return (
+		typeof obj === "string" &&
+		obj.startsWith("oid:") &&
+		obj.length === "oid:".length + 24 &&
+		ObjectId.isValid(obj.slice("oid:".length))
+	);
+}
+
+function replaceOidOperatorForValue(value: any, idsToString: boolean): any {
+	if (idsToString && isSerializedObjectId(value)) {
+		return encodeSerializedObjectId(value);
+	}
+	if (!idsToString && isEncodedObjectId(value)) {
+		return decodeObjectId(value);
+	}
+	return value;
 }
 
 export function replaceOidOperator(
@@ -38,45 +71,37 @@ export function replaceOidOperator(
 	const newObj = { ...obj };
 
 	for (const key in newObj) {
-		if (idsToString && key === "_id") {
-			newObj["_id"] = newObj._id.$oid;
-		} else if (!idsToString && key === "_id") {
-			newObj._id = new ObjectId(newObj._id.toString());
-		} else if (
-			(idsToString && (newObj[key] as any) instanceof ObjectId) ||
-			newObj[key]?.$oid
-		) {
-			newObj[key] = `ObjectId:${newObj[key].$oid}`;
-		} else if (
-			!idsToString &&
-			typeof newObj[key] === "string" &&
-			newObj[key].startsWith("ObjectId:") &&
-			newObj[key].slice(9).length === 24
-		) {
-			newObj[key] = new ObjectId(newObj[key].slice(9));
+		if (idsToString && isSerializedObjectId(newObj[key])) {
+			newObj[key] = encodeSerializedObjectId(newObj[key]);
+		} else if (!idsToString && isEncodedObjectId(newObj[key])) {
+			newObj[key] = decodeObjectId(newObj[key]);
 		} else if (Array.isArray(newObj[key])) {
 			newObj[key] = newObj[key].map((item: any) => {
+				if (idsToString && isSerializedObjectId(item)) {
+					return encodeSerializedObjectId(item);
+				}
+
+				if (!idsToString && isEncodedObjectId(item)) {
+					return decodeObjectId(item);
+				}
+
 				if (typeof item === "object") {
 					return replaceOidOperator(item, idsToString);
 				}
-				return item;
+
+				return replaceOidOperatorForValue(item, idsToString);
 			});
-		} else if (
-			newObj[key] !== undefined &&
-			!(newObj[key] instanceof ObjectId) &&
-			newObj[key] !== null &&
-			typeof newObj[key] === "object"
-		) {
+		} else if (newObj[key] != undefined && typeof newObj[key] === "object") {
 			newObj[key] = replaceOidOperator(newObj[key], idsToString);
-		}
+		} else newObj[key] = replaceOidOperatorForValue(newObj[key], idsToString);
 	}
 
 	return newObj;
 }
 
 /**
- * @param removeUndefined pass false if you're serializing a query where undefined values are important
- * (this is most of the time that you're serializing a query)
+ * @param removeUndefined pass false if you're serializing a query where undefined values are important.
+ * This will replace undefined with null.
  */
 export function serialize(obj: any, removeUndefined: boolean = true): any {
 	return replaceOidOperator(
