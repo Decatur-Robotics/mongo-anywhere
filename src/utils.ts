@@ -43,8 +43,8 @@ export function replaceOidOperator(
 		} else if (!idsToString && key === "_id") {
 			newObj._id = new ObjectId(newObj._id.toString());
 		} else if (
-			(idsToString && (key as any) instanceof ObjectId) ||
-			newObj[key].$oid
+			(idsToString && (newObj[key] as any) instanceof ObjectId) ||
+			newObj[key]?.$oid
 		) {
 			newObj[key] = `ObjectId:${newObj[key].$oid}`;
 		} else if (
