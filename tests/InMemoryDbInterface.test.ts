@@ -76,6 +76,12 @@ test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObject.nam
 	expect(
 		await db.findObject(CollectionId.Users, { name: user.name }),
 	).toStrictEqual(user);
+
+	const secondUser = { _id: new ObjectId(), otherId: user._id };
+	await db.addObject(CollectionId.Users, secondUser);
+	expect(
+		await db.findObject(CollectionId.Users, { otherId: user._id }),
+	).toStrictEqual(secondUser);
 });
 
 test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObjects.name}: Finds multiple objects by query`, async () => {

@@ -42,6 +42,18 @@ export function replaceOidOperator(
 			newObj["_id"] = newObj._id.$oid;
 		} else if (!idsToString && key === "_id") {
 			newObj._id = new ObjectId(newObj._id.toString());
+		} else if (
+			(idsToString && (key as any) instanceof ObjectId) ||
+			newObj[key].$oid
+		) {
+			newObj[key] = `ObjectId:${newObj[key].$oid}`;
+		} else if (
+			!idsToString &&
+			typeof newObj[key] === "string" &&
+			newObj[key].startsWith("ObjectId:") &&
+			newObj[key].slice(9).length === 24
+		) {
+			newObj[key] = new ObjectId(newObj[key].slice(9));
 		} else if (Array.isArray(newObj[key])) {
 			newObj[key] = newObj[key].map((item: any) => {
 				if (typeof item === "object") {
