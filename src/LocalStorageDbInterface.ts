@@ -102,7 +102,7 @@ export default class LocalStorageDbInterface<
 			.then((existingDoc) => {
 				if (!existingDoc) {
 					throw new Error(
-						`Document with id ${id} not found in collection ${collection}`,
+						`Cannot update document with id ${id} because it is not found in collection ${collection}`,
 					);
 				}
 
