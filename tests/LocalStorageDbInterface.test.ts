@@ -75,12 +75,28 @@ test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.findOb
 	).toStrictEqual(user);
 });
 
+test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.findObjectById.name}: Returns undefined if object not found`, async () => {
+	const db = await getDb();
+
+	expect(await db.findObjectById(CollectionId.Users, new ObjectId())).toBe(
+		undefined,
+	);
+});
+
 test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.findObject.name}: Finds object by query`, async () => {
 	const { db, user } = await getTestApiUtils();
 	await db.addObject(CollectionId.Users, user);
 	expect(
 		await db.findObject(CollectionId.Users, { name: user.name }),
 	).toStrictEqual(user);
+});
+
+test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.findObject.name}: Returns undefined if object not found`, async () => {
+	const db = await getDb();
+
+	expect(await db.findObject(CollectionId.Users, { name: "Not Found" })).toBe(
+		undefined,
+	);
 });
 
 test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.findObjects.name}: Finds multiple objects by query`, async () => {
@@ -102,6 +118,14 @@ test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.findOb
 	expect(
 		await db.findObjects(CollectionId.Users, { name: objects[0].name }),
 	).toStrictEqual([objects[0]]);
+});
+
+test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.findObjects.name}: Returns empty array if objects not found`, async () => {
+	const db = await getDb();
+
+	expect(
+		await db.findObjects(CollectionId.Users, { name: "Not Found" }),
+	).toStrictEqual([]);
 });
 
 test(`${LocalStorageDbInterface.name}.${LocalStorageDbInterface.prototype.countObjects.name}: Counts objects`, async () => {

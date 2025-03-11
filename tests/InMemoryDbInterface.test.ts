@@ -70,6 +70,14 @@ test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObjectById
 	).toStrictEqual(user);
 });
 
+test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObjectById.name}: Returns undefined if object not found`, async () => {
+	const db = await getDb();
+
+	expect(await db.findObjectById(CollectionId.Users, new ObjectId())).toBe(
+		undefined,
+	);
+});
+
 test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObject.name}: Finds object by query`, async () => {
 	const { db, user } = await getTestApiUtils();
 	await db.addObject(CollectionId.Users, user);
@@ -82,6 +90,14 @@ test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObject.nam
 	expect(
 		await db.findObject(CollectionId.Users, { otherId: user._id }),
 	).toStrictEqual(secondUser);
+});
+
+test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObject.name}: Returns undefined if object not found`, async () => {
+	const db = await getDb();
+
+	expect(await db.findObject(CollectionId.Users, { name: "Test User" })).toBe(
+		undefined,
+	);
 });
 
 test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObjects.name}: Finds multiple objects by query`, async () => {
@@ -103,6 +119,14 @@ test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObjects.na
 	expect(
 		await db.findObjects(CollectionId.Users, { name: objects[0].name }),
 	).toStrictEqual([objects[0]]);
+});
+
+test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.findObjects.name}: Returns empty array if objects not found`, async () => {
+	const db = await getDb();
+
+	expect(
+		await db.findObjects(CollectionId.Users, { name: "Not Found" }),
+	).toStrictEqual([]);
 });
 
 test(`${InMemoryDbInterface.name}.${InMemoryDbInterface.prototype.countObjects.name}: Counts objects`, async () => {
