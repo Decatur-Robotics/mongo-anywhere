@@ -20,8 +20,7 @@ export function getCacheKey(
 export default class CachedDbInterface<
 	TCollectionId extends string,
 	TDocument extends WithStringOrObjectIdId<Document>,
-> implements DbInterface<TCollectionId, TDocument>
-{
+> extends DbInterface<TCollectionId, TDocument> {
 	/**
 	 *
 	 * @param fallbackDb the DbInterface to use as a fallback in the event of a cache miss
@@ -31,7 +30,9 @@ export default class CachedDbInterface<
 		private fallbackDb: DbInterface<TCollectionId, TDocument>,
 		private cacheOptions: NodeCache.Options,
 		private logCacheInteractions = false,
-	) {}
+	) {
+		super();
+	}
 
 	init(collectionIds: TCollectionId[]): Promise<void> {
 		this.fallbackDb.init(collectionIds);

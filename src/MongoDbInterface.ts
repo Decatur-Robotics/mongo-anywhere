@@ -5,13 +5,13 @@ import { ensureObjHasId } from "./utils";
 export default class MongoDbInterface<
 	TCollectionId extends string,
 	TDocument extends WithStringOrObjectIdId<Document>,
-> implements DbInterface<TCollectionId, TDocument>
-{
+> extends DbInterface<TCollectionId, TDocument> {
 	promise: Promise<MongoClient> | undefined;
 	client: MongoClient | undefined;
 	db: Db | undefined;
 
 	constructor(promise: Promise<MongoClient>) {
+		super();
 		this.promise = promise;
 	}
 

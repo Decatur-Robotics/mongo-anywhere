@@ -9,11 +9,11 @@ import { deserialize, ensureObjHasId, serialize } from "./utils";
 export default class InMemoryDbInterface<
 	TCollectionId extends string,
 	TDocument extends WithStringOrObjectIdId<Document>,
-> implements DbInterface<TCollectionId, TDocument>
-{
+> extends DbInterface<TCollectionId, TDocument> {
 	backingDb: MemoryDb;
 
 	constructor() {
+		super();
 		this.backingDb = new MemoryDb();
 	}
 
