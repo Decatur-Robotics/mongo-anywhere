@@ -38,7 +38,7 @@ export default class MongoDbInterface<
 		const ack = await this?.db
 			?.collection(collection)
 			.insertOne(object as Document & { _id?: ObjectId });
-		object._id = ack?.insertedId;
+		object._id = ack?.insertedId ?? object._id;
 		return object as TObj;
 	}
 
