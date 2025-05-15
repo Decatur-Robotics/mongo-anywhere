@@ -53,7 +53,7 @@
 	"dependencies": {
 		"bson": "^5.0.0",
 		"minimongo": "^6.19.0",
-		"mongodb": "^5.0.0",
+		"mongodb": "^6.16.0",
 		"node-cache": "^5.1.2"
 	}
 }
