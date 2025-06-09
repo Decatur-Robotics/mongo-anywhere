@@ -51,7 +51,7 @@
 		"ts-node": "^10.9.2"
 	},
 	"dependencies": {
-		"bson": "^5.0.0",
+		"bson": "^6.10.4",
 		"minimongo": "^6.19.0",
 		"mongodb": "^5.0.0",
 		"node-cache": "^5.1.2"
